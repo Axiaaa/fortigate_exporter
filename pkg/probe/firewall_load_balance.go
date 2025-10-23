@@ -133,12 +133,11 @@ func probeFirewallLoadBalance(c http.FortiHTTP, meta *TargetMetadata) ([]prometh
 				}
 
 				realServerRTTValue := math.NaN()
-				switch realServer.RTT {
-				case "<1":
+				if "<1" == realServer.RTT {
 					realServerRTTValue = 0.001
-				case "":
+				} else if "" == realServer.RTT {
 					// NaN
-				default:
+				} else {
 					if realServerRTTValueInMs, err := strconv.ParseFloat(realServer.RTT, 64); err != nil {
 						log.Printf("Failed to parse RTT value: %v", err)
 					} else {

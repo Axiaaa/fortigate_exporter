@@ -67,7 +67,7 @@ func (p *ProbeCollector) Probe(ctx context.Context, target map[string]string, hc
 	}
 
 	if tgt.Scheme != "https" && tgt.Scheme != "http" {
-		return false, fmt.Errorf("unsupported scheme %q", tgt.Scheme)
+		return false, fmt.Errorf("Unsupported scheme %q", tgt.Scheme)
 	}
 
 	// Filter anything else than scheme and hostname
@@ -151,6 +151,8 @@ func (p *ProbeCollector) Probe(ctx context.Context, target map[string]string, hc
 		{"System/Status", probeSystemStatus},
 		{"System/VDOMResources", probeSystemVDOMResources},
 		{"System/HAChecksum", probeSystemHAChecksum},
+		{"SwitchController/ManageSwitch/PortStats", probeSwitchPortStats},
+		{"SwitchController/ManageSwitch/Health", probeSwitchHealth},
 		{"User/Fsso", probeUserFsso},
 		{"VPN/IPSec", probeVPNIPSec},
 		{"VPN/Ssl/Connections", probeVPNSsl},
@@ -160,8 +162,15 @@ func (p *ProbeCollector) Probe(ctx context.Context, target map[string]string, hc
 		{"Wifi/APStatus", probeWifiAPStatus},
 		{"Wifi/Clients", probeWifiClients},
 		{"Wifi/ManagedAP", probeWifiManagedAP},
-		{"Switch/ManagedSwitch", probeManagedSwitch},
 		{"OSPF/Neighbors", probeOSPFNeighbors},
+		// {"Switch/ManagedSwitch", probeManagedSwitch},
+		/*
+		Commenting  because its causes probe_sucess to fail.
+		Total metric number with or without is the same for me so it doesn't seem to be used anyway.
+		
+		curl http://<ip>:9710/probe?target=<my-foritguate-url> | wc -l
+		Gives me 1254 
+		*/
 	} {
 		wanted := false
 

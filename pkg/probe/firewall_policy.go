@@ -150,6 +150,9 @@ func probeFirewallPolicies(c http.FortiHTTP, meta *TargetMetadata) ([]prometheus
 	process := func(ps *policyStats, s *pStats, pcMap map[string]*pConfig, proto string) []prometheus.Metric {
 		id := fmt.Sprintf("%d", s.ID)
 		name := "Implicit Deny"
+		if s.UUID == "" {
+			return nil
+		}
 		if s.ID > 0 {
 			c, ok := pcMap[s.UUID]
 			if !ok {
@@ -171,13 +174,19 @@ func probeFirewallPolicies(c http.FortiHTTP, meta *TargetMetadata) ([]prometheus
 	m := []prometheus.Metric{}
 	for _, ps := range ps4 {
 		for _, s := range ps.Results {
-			m = append(m, process(&ps, &s, pc4Map, "ipv4")...)
+			process_val := process(&ps, &s, pc6Map, "ipv4")
+			if process_val != nil {
+				m = append(m, process_val...)
+			}
 		}
 	}
 
 	for _, ps := range ps6 {
 		for _, s := range ps.Results {
-			m = append(m, process(&ps, &s, pc6Map, "ipv6")...)
+			process_val := process(&ps, &s, pc6Map, "ipv6")
+			if process_val != nil {
+				m = append(m, process_val...)
+			}
 		}
 	}
 
