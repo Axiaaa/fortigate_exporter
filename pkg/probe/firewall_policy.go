@@ -45,13 +45,14 @@ func probeFirewallPolicies(c http.FortiHTTP, meta *TargetMetadata) ([]prometheus
 			[]string{"vdom", "protocol", "name", "uuid", "id"}, nil,
 		)
 	)
-
+	
 	type pStats struct {
-		ID               int64 `json:"policyid"`
-		UUID             string
+		ID               int64   `json:"policyid"`
+		UUID             string  `json:"uuid"`
 		ActiveSessions   float64 `json:"active_sessions"`
-		Bytes            float64
-		Packets          float64
+		Status           string  `json:"status"`
+		Bytes            float64 `json:"bytes"`
+		Packets          float64 `json:"packets"`
 		SoftwareBytes    float64 `json:"software_bytes"`
 		SoftwarePackets  float64 `json:"software_packets"`
 		ASICBytes        float64 `json:"asic_bytes"`
@@ -118,7 +119,7 @@ func probeFirewallPolicies(c http.FortiHTTP, meta *TargetMetadata) ([]prometheus
 	var pc6 []policyConfig
 
 	query := "vdom=*&policyid|name|uuid|action|status"
-
+	
 	if err := c.Get("api/v2/cmdb/firewall/policy", query, &pc); err != nil {
 		log.Printf("Error: %v", err)
 		return nil, false
@@ -129,17 +130,25 @@ func probeFirewallPolicies(c http.FortiHTTP, meta *TargetMetadata) ([]prometheus
 			return nil, false
 		}
 	}
-
+	
 	pc4Map := map[string]*pConfig{}
 	pc6Map := map[string]*pConfig{}
+	var count float64 = 0
+
 	for _, pc := range pc {
 		for i, c := range pc.Results {
+			if c.Status == "enable" {
+				count++
+			}
 			pc4Map[c.UUID] = &pc.Results[i]
 		}
 	}
 	if !combined {
 		for _, pc := range pc6 {
 			for i, c := range pc.Results {
+				if c.Status == "enable" {
+					count++
+				}
 				pc6Map[c.UUID] = &pc.Results[i]
 			}
 		}
@@ -162,6 +171,7 @@ func probeFirewallPolicies(c http.FortiHTTP, meta *TargetMetadata) ([]prometheus
 				name = c.Name
 			}
 		}
+		s.ActiveSessions = count
 		m := []prometheus.Metric{
 			prometheus.MustNewConstMetric(mHitCount, prometheus.CounterValue, s.HitCount, ps.VDOM, proto, name, s.UUID, id),
 			prometheus.MustNewConstMetric(mBytes, prometheus.CounterValue, s.Bytes, ps.VDOM, proto, name, s.UUID, id),
