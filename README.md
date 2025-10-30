@@ -1,6 +1,6 @@
 # fortigate_exporter
 
-![Go](https://github.com/prometheus-community/fortigate_exporter/workflows/Go/badge.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/prometheus-community/fortigate_exporter)](https://goreportcard.com/report/github.com/prometheus-community/fortigate_exporter)
 ![Docker](https://github.com/prometheus-community/fortigate_exporter/workflows/Docker/badge.svg)
 [![Docker Repository on Quay](https://quay.io/repository/prometheuscommunity/fortigate_exporter/status "Docker Repository on Quay")](https://quay.io/repository/prometheuscommunity/fortigate_exporter)
 [![Matrix](https://img.shields.io/matrix/fortigate_exporter:matrix.org)](https://matrix.to/#/#fortigate_exporter:matrix.org)
